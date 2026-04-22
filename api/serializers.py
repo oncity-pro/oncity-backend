@@ -27,11 +27,12 @@ class CustomerSerializer(serializers.ModelSerializer):
     客户序列化器
     """
     brand_name = serializers.CharField(source='brand.name', read_only=True)
+    customer_type_display = serializers.CharField(source='get_customer_type_display', read_only=True)
     
     class Meta:
         model = Customer
         fields = [
-            'id', 'name', 'brand', 'brand_name', 'open_date', 
+            'id', 'name', 'customer_type', 'customer_type_display', 'brand', 'brand_name', 'open_date', 
             'last_delivery_date', 'phone', 'address', 'remark',
             'is_active', 'created_at', 'updated_at'
         ]

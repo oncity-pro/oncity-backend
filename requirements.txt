@@ -10,6 +10,9 @@ python-decouple==3.8
 django-extensions==3.2.3
 ipython==8.31.0
 
+# Testing & HTTP Client
+requests==2.31.0
+
 # Production (Optional)
 gunicorn==21.2.0
 whitenoise==6.6.0

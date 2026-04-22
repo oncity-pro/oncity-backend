@@ -8,6 +8,41 @@
 
 ---
 
+## 客户类型字段说明
+
+从2026-04-22起，客户管理API新增了`customer_type`字段，用于区分客户类型。
+
+### 客户类型选项
+- `vip`: VIP客户
+- `normal`: 普通客户（默认值）
+- `pickup`: 自提客户
+
+### API返回示例
+```json
+{
+  "id": "0001",
+  "name": "张三",
+  "customer_type": "vip",
+  "customer_type_display": "VIP客户",
+  "brand": 1,
+  "brand_name": "怡宝",
+  "open_date": "2024-01-15",
+  "last_delivery_date": "2024-04-20",
+  "phone": "13800138001",
+  "address": "北京市朝阳区xxx小区1号楼101",
+  "remark": "老客户",
+  "is_active": true,
+  "created_at": "2024-01-15T00:00:00Z",
+  "updated_at": "2024-01-15T00:00:00Z"
+}
+```
+
+**字段说明：**
+- `customer_type`: 客户类型代码，用于提交和存储
+- `customer_type_display`: 客户类型的中文显示名称，由后端自动生成，只读
+
+---
+
 ## API 端点列表
 
 ### 1. 健康检查
@@ -112,6 +147,8 @@ GET /api/v1/customers/?keyword=0001
   {
     "id": "0001",
     "name": "张三 - 北京市朝阳区xxx小区1号楼101",
+    "customer_type": "normal",
+    "customer_type_display": "普通客户",
     "brand": 1,
     "brand_name": "怡宝",
     "open_date": "2024-01-15",
@@ -141,6 +178,7 @@ GET /api/v1/customers/?keyword=0001
 {
   "id": "0006",
   "name": "周八 - 北京市昌平区ccc小区6号楼606",
+  "customer_type": "normal",
   "brand": 1,
   "open_date": "2024-04-21",
   "last_delivery_date": null,
@@ -154,6 +192,7 @@ GET /api/v1/customers/?keyword=0001
 **字段说明：**
 - `id`: 客户编号（必填，字符串类型）
 - `name`: 姓名地址（必填）
+- `customer_type`: 客户类型（可选，默认'normal'），可选值：'vip'(VIP客户), 'normal'(普通客户), 'pickup'(自提客户)
 - `brand`: 品牌ID（可选）
 - `open_date`: 开户日期（必填，格式：YYYY-MM-DD）
 - `last_delivery_date`: 最后送水日期（可选）
@@ -161,6 +200,10 @@ GET /api/v1/customers/?keyword=0001
 - `address`: 详细地址（可选）
 - `remark`: 备注（可选）
 - `is_active`: 是否活跃（可选，默认true）
+
+**返回字段补充：**
+- `customer_type`: 客户类型代码（'vip', 'normal', 'pickup'）
+- `customer_type_display`: 客户类型中文显示名称（'VIP客户', '普通客户', '自提客户'）
 
 #### 3.4 获取客户详情
 

@@ -43,8 +43,21 @@ class Customer(models.Model):
     """
     客户模型
     """
+    # 客户类型选择
+    CUSTOMER_TYPE_CHOICES = [
+        ('vip', 'VIP客户'),
+        ('normal', '普通客户'),
+        ('pickup', '自提客户'),
+    ]
+    
     id = models.CharField(max_length=20, primary_key=True, verbose_name='客户编号')
     name = models.CharField(max_length=200, verbose_name='姓名地址')
+    customer_type = models.CharField(
+        max_length=10,
+        choices=CUSTOMER_TYPE_CHOICES,
+        default='normal',
+        verbose_name='客户类型'
+    )
     brand = models.ForeignKey(
         WaterBrand, 
         on_delete=models.SET_NULL, 

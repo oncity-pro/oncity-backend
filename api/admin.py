@@ -20,8 +20,8 @@ class WaterBrandAdmin(admin.ModelAdmin):
 
 @admin.register(Customer)
 class CustomerAdmin(admin.ModelAdmin):
-    list_display = ['id', 'name', 'brand', 'open_date', 'last_delivery_date', 'is_active', 'created_at']
-    list_filter = ['brand', 'is_active', 'open_date', 'created_at']
+    list_display = ['id', 'name', 'customer_type', 'brand', 'open_date', 'last_delivery_date', 'is_active', 'created_at']
+    list_filter = ['customer_type', 'brand', 'is_active', 'open_date', 'created_at']
     search_fields = ['id', 'name', 'phone', 'address']
     readonly_fields = ['created_at', 'updated_at']
     date_hierarchy = 'open_date'
