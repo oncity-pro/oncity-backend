@@ -32,7 +32,7 @@ class CustomerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customer
         fields = [
-            'id', 'name', 'customer_type', 'customer_type_display', 'brand', 'brand_name', 'open_date', 
+            'id', 'customer_number', 'name', 'customer_type', 'customer_type_display', 'brand', 'brand_name', 'open_date', 
             'last_delivery_date', 'phone', 'address', 'remark',
             'is_active', 'created_at', 'updated_at'
         ]
@@ -40,8 +40,14 @@ class CustomerSerializer(serializers.ModelSerializer):
     
     def validate_id(self, value):
         """验证客户编号格式"""
-        if not value:
+        if not value or value.strip() == '':
             raise serializers.ValidationError("客户编号不能为空")
+        return value
+    
+    def validate_customer_number(self, value):
+        """验证客户号码格式"""
+        if not value or value.strip() == '':
+            raise serializers.ValidationError("客户号码不能为空")
         return value
     
     def validate_open_date(self, value):

@@ -330,12 +330,22 @@ class CustomerDetailView(generics.RetrieveUpdateDestroyAPIView):
         重写 destroy 方法，返回 Vben Admin 期望的格式
         """
         instance = self.get_object()
-        self.perform_destroy(instance)
-        return Response({
-            'code': 0,
-            'message': '删除成功',
-            'data': None
-        }, status=status.HTTP_200_OK)
+        print(f"准备删除客户: {instance.id} - {instance.name}")
+        try:
+            self.perform_destroy(instance)
+            print(f"客户删除成功: {instance.id}")
+            return Response({
+                'code': 0,
+                'message': '删除成功',
+                'data': None
+            }, status=status.HTTP_200_OK)
+        except Exception as e:
+            print(f"删除客户失败: {instance.id}, 错误: {str(e)}")
+            return Response({
+                'code': 1,
+                'message': f'删除失败: {str(e)}',
+                'data': None
+            }, status=status.HTTP_400_BAD_REQUEST)
 
 
 # ==================== Menu Views ====================

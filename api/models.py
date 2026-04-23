@@ -51,6 +51,7 @@ class Customer(models.Model):
     ]
     
     id = models.CharField(max_length=20, primary_key=True, verbose_name='客户编号')
+    customer_number = models.CharField(max_length=20, unique=True, verbose_name='客户号码')  # 添加此字段
     name = models.CharField(max_length=200, verbose_name='姓名地址')
     customer_type = models.CharField(
         max_length=10,
@@ -68,14 +69,15 @@ class Customer(models.Model):
     )
     open_date = models.DateField(verbose_name='开户日期')
     last_delivery_date = models.DateField(blank=True, null=True, verbose_name='最后送水日期')
-    phone = models.CharField(max_length=20, blank=True, verbose_name='联系电话')
-    address = models.TextField(blank=True, verbose_name='详细地址')
+    phone = models.CharField(max_length=20, verbose_name='联系电话')
+    address = models.TextField(verbose_name='详细地址')
     remark = models.TextField(blank=True, verbose_name='备注')
     is_active = models.BooleanField(default=True, verbose_name='是否活跃')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='更新时间')
 
     class Meta:
+        db_table = 'api_customer'  # 确保使用正确的表名
         ordering = ['-created_at']
         verbose_name = '客户'
         verbose_name_plural = '客户列表'
