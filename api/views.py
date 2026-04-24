@@ -308,9 +308,29 @@ class CustomerListCreateView(generics.ListCreateAPIView):
         """
         重写 create 方法，返回 Vben Admin 期望的格式
         """
+        # 添加调试信息
+        print(f"收到创建客户的请求数据: {request.data}")
+        
+        # 检查是否为JSON请求
+        content_type = request.content_type if hasattr(request, 'content_type') else request.META.get('CONTENT_TYPE', '')
+        print(f"请求内容类型: {content_type}")
+        
         serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
+        if not serializer.is_valid():
+            print(f"数据验证失败: {serializer.errors}")
+            # 尝试获取更具体的错误信息
+            error_details = {}
+            for field, errors in serializer.errors.items():
+                error_details[field] = [str(error) for error in errors]
+                
+            return Response({
+                'code': 1,
+                'message': '数据验证失败',
+                'errors': error_details
+            }, status=status.HTTP_400_BAD_REQUEST)
+            
         self.perform_create(serializer)
+        print(f"客户创建成功: {serializer.data}")
         return Response({
             'code': 0,
             'message': '创建成功',

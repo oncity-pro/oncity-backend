@@ -27,7 +27,7 @@ class CustomerSerializer(serializers.ModelSerializer):
     客户序列化器
     """
     brand_name = serializers.CharField(source='brand.name', read_only=True)
-    customer_type_display = serializers.CharField(source='get_customer_type_display', read_only=True)
+    customer_type_display = serializers.SerializerMethodField(read_only=True)
     
     class Meta:
         model = Customer
@@ -38,21 +38,43 @@ class CustomerSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['created_at', 'updated_at']
     
+    def get_customer_type_display(self, obj):
+        """获取客户类型显示名称"""
+        return obj.get_customer_type_display()
+    
     def validate_id(self, value):
         """验证客户编号格式"""
         if not value or value.strip() == '':
             raise serializers.ValidationError("客户编号不能为空")
-        return value
+        return value.strip()
     
     def validate_customer_number(self, value):
         """验证客户号码格式"""
         if not value or value.strip() == '':
             raise serializers.ValidationError("客户号码不能为空")
-        return value
+        return value.strip()
+    
+    def validate_name(self, value):
+        """验证姓名地址不为空"""
+        if not value or value.strip() == '':
+            raise serializers.ValidationError("姓名地址不能为空")
+        return value.strip()
+    
+    def validate_phone(self, value):
+        """验证联系电话不为空"""
+        if not value or value.strip() == '':
+            raise serializers.ValidationError("联系电话不能为空")
+        return value.strip()
+    
+    def validate_address(self, value):
+        """验证地址不为空"""
+        if not value or value.strip() == '':
+            raise serializers.ValidationError("详细地址不能为空")
+        return value.strip()
     
     def validate_open_date(self, value):
         """验证开户日期"""
         from django.utils import timezone
-        if value > timezone.now().date():
+        if value and value > timezone.now().date():
             raise serializers.ValidationError("开户日期不能是未来日期")
         return value
