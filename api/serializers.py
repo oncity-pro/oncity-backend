@@ -36,23 +36,11 @@ class CustomerSerializer(serializers.ModelSerializer):
             'last_delivery_date', 'phone', 'address', 'remark',
             'is_active', 'created_at', 'updated_at'
         ]
-        read_only_fields = ['created_at', 'updated_at']
+        read_only_fields = ['id', 'customer_number', 'created_at', 'updated_at']
     
     def get_customer_type_display(self, obj):
         """获取客户类型显示名称"""
         return obj.get_customer_type_display()
-    
-    def validate_id(self, value):
-        """验证客户编号格式"""
-        if not value or value.strip() == '':
-            raise serializers.ValidationError("客户编号不能为空")
-        return value.strip()
-    
-    def validate_customer_number(self, value):
-        """验证客户号码格式"""
-        if not value or value.strip() == '':
-            raise serializers.ValidationError("客户号码不能为空")
-        return value.strip()
     
     def validate_name(self, value):
         """验证姓名地址不为空"""

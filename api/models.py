@@ -1,4 +1,6 @@
 from django.db import models
+from django.utils import timezone
+import uuid
 
 
 class Sample(models.Model):
@@ -39,6 +41,36 @@ class WaterBrand(models.Model):
         return self.name
 
 
+def generate_customer_id():
+    """生成客户编号：从1开始的递增数字，格式为4位数字，不足前面补0"""
+    from django.db import connection
+    with connection.cursor() as cursor:
+        # 查询当前最大客户编号
+        cursor.execute("SELECT MAX(CAST(id AS UNSIGNED)) FROM api_customer WHERE id REGEXP '^[0-9]+$'")
+        result = cursor.fetchone()[0]
+        
+        # 如果没有现有记录，则从1开始
+        next_id = 1 if result is None else int(result) + 1
+        
+        # 格式化为4位数字，前面补0
+        return f"{next_id:04d}"
+
+
+def generate_customer_number():
+    """生成客户号码：从1开始的递增数字，格式为CUS+4位数字"""
+    from django.db import connection
+    with connection.cursor() as cursor:
+        # 查询当前最大客户号码
+        cursor.execute("SELECT MAX(CAST(SUBSTRING(customer_number, 4) AS UNSIGNED)) FROM api_customer WHERE customer_number LIKE 'CUS%' AND SUBSTRING(customer_number, 4) REGEXP '^[0-9]+$'")
+        result = cursor.fetchone()[0]
+        
+        # 如果没有现有记录，则从1开始
+        next_num = 1 if result is None else int(result) + 1
+        
+        # 格式化为CUS+4位数字
+        return f"CUS{next_num:04d}"
+
+
 class Customer(models.Model):
     """
     客户模型
@@ -50,8 +82,8 @@ class Customer(models.Model):
         ('pickup', '自提客户'),
     ]
     
-    id = models.CharField(max_length=20, primary_key=True, verbose_name='客户编号')
-    customer_number = models.CharField(max_length=20, unique=True, verbose_name='客户号码')  # 添加此字段
+    id = models.CharField(max_length=20, primary_key=True, default=generate_customer_id, verbose_name='客户编号')
+    customer_number = models.CharField(max_length=20, unique=True, default=generate_customer_number, verbose_name='客户号码')
     name = models.CharField(max_length=200, verbose_name='姓名地址')
     customer_type = models.CharField(
         max_length=10,
