@@ -42,33 +42,37 @@ class WaterBrand(models.Model):
 
 
 def generate_customer_id():
-    """生成客户编号：从1开始的递增数字，格式为4位数字，不足前面补0"""
+    """生成客户编号：格式为4位数字，从0001开始，但要避开现有的CUS ID数值"""
+    from django.apps import apps
     from django.db import connection
+    
+    # 延迟获取 Customer 模型，避免循环导入或定义顺序问题
+    Customer = apps.get_model('api', 'Customer')
+    
+    # 获取当前最大的纯数字ID
     with connection.cursor() as cursor:
-        # 查询当前最大客户编号
-        cursor.execute("SELECT MAX(CAST(id AS UNSIGNED)) FROM api_customer WHERE id REGEXP '^[0-9]+$'")
-        result = cursor.fetchone()[0]
+        # 查询所有纯数字ID的最大值
+        cursor.execute("""
+            SELECT MAX(CAST(id AS UNSIGNED)) 
+            FROM api_customer 
+            WHERE id REGEXP '^[0-9]+$'
+        """)
+        max_numeric_id_tuple = cursor.fetchone()
+        max_numeric_id = max_numeric_id_tuple[0] if max_numeric_id_tuple[0] is not None else 0
         
-        # 如果没有现有记录，则从1开始
-        next_id = 1 if result is None else int(result) + 1
-        
-        # 格式化为4位数字，前面补0
-        return f"{next_id:04d}"
-
-
-def generate_customer_number():
-    """生成客户号码：从1开始的递增数字，格式为CUS+4位数字"""
-    from django.db import connection
-    with connection.cursor() as cursor:
-        # 查询当前最大客户号码
-        cursor.execute("SELECT MAX(CAST(SUBSTRING(customer_number, 4) AS UNSIGNED)) FROM api_customer WHERE customer_number LIKE 'CUS%' AND SUBSTRING(customer_number, 4) REGEXP '^[0-9]+$'")
-        result = cursor.fetchone()[0]
-        
-        # 如果没有现有记录，则从1开始
-        next_num = 1 if result is None else int(result) + 1
-        
-        # 格式化为CUS+4位数字
-        return f"CUS{next_num:04d}"
+        # 查询所有CUS前缀ID的最大值
+        cursor.execute("""
+            SELECT MAX(CAST(SUBSTRING(id, 4) AS UNSIGNED)) 
+            FROM api_customer 
+            WHERE id LIKE 'CUS%'
+        """)
+        max_cus_numeric_part_tuple = cursor.fetchone()
+        max_cus_numeric_part = max_cus_numeric_part_tuple[0] if max_cus_numeric_part_tuple[0] is not None else 0
+    
+    # 新的ID应该是两者中的最大值加1
+    new_number = max(max_numeric_id, max_cus_numeric_part) + 1
+    
+    return f'{new_number:04d}'
 
 
 class Customer(models.Model):
@@ -80,10 +84,12 @@ class Customer(models.Model):
         ('vip', 'VIP客户'),
         ('normal', '普通客户'),
         ('pickup', '自提客户'),
+        ('closed', '已注销'),
+        ('slow_pay', '收款慢'),
+        ('blacklist', '黑名单'),
     ]
     
     id = models.CharField(max_length=20, primary_key=True, default=generate_customer_id, verbose_name='客户编号')
-    customer_number = models.CharField(max_length=20, unique=True, default=generate_customer_number, verbose_name='客户号码')
     name = models.CharField(max_length=200, verbose_name='姓名地址')
     customer_type = models.CharField(
         max_length=10,
@@ -116,3 +122,11 @@ class Customer(models.Model):
 
     def __str__(self):
         return f"{self.id} - {self.name}"
+
+    @property
+    def customer_type_display(self):
+        return dict(self.CUSTOMER_TYPE_CHOICES).get(self.customer_type, self.customer_type)
+        
+    @property
+    def brand_name(self):
+        return self.brand.name if self.brand else None

@@ -5,7 +5,7 @@
 ## 📋 后端API支持
 
 后端已完全支持客户类型字段，返回两个相关字段：
-- `customer_type`: 类型代码（'vip', 'normal', 'pickup'）- 用于提交
+- `customer_type`: 类型代码（'vip', 'normal', 'pickup', 'closed', 'slow_pay', 'blacklist'）- 用于提交
 - `customer_type_display`: 中文显示名称 - 用于展示
 
 ## 🔧 前端需要修改的文件
@@ -15,10 +15,20 @@
 **文件位置**: `src/api/customer/index.ts` 或 `src/api/types/customer.ts`
 
 ```typescript
+// 客户类型选项（用于下拉框）
+export const CUSTOMER_TYPE_OPTIONS = [
+  { label: 'VIP客户', value: 'vip' },
+  { label: '普通客户', value: 'normal' },
+  { label: '自提客户', value: 'pickup' },
+  { label: '已注销', value: 'closed' },
+  { label: '收款慢', value: 'slow_pay' },
+  { label: '黑名单', value: 'blacklist' },
+] as const;
+
 export interface Customer {
   id: string;
   name: string;
-  customer_type?: 'vip' | 'normal' | 'pickup';
+  customer_type?: 'vip' | 'normal' | 'pickup' | 'closed' | 'slow_pay' | 'blacklist';
   customer_type_display?: string;
   brand?: number;
   brand_name?: string;
@@ -32,12 +42,6 @@ export interface Customer {
   updated_at?: string;
 }
 
-// 客户类型选项（用于下拉框）
-export const CUSTOMER_TYPE_OPTIONS = [
-  { label: 'VIP客户', value: 'vip' },
-  { label: '普通客户', value: 'normal' },
-  { label: '自提客户', value: 'pickup' },
-] as const;
 ```
 
 ### 2. 表格页面组件
@@ -79,7 +83,7 @@ const columns: VxeTableGridOptions['columns'] = [
 
 如果需要按客户类型筛选，在搜索表单中添加：
 
-```vue
+``vue
 <template>
   <BasicForm @register="registerSearchForm">
     <template #customer_type="{ model, field }">
@@ -121,7 +125,7 @@ const searchFormSchema: FormSchema[] = [
 
 #### 3.1 表单Schema配置
 
-```typescript
+``typescript
 import { CUSTOMER_TYPE_OPTIONS } from '@/api/customer';
 
 const formSchema: FormSchema[] = [
@@ -175,7 +179,7 @@ const formSchema: FormSchema[] = [
 
 确保在打开弹窗时正确初始化customer_type字段：
 
-```typescript
+``typescript
 async function openModal(record?: Customer) {
   modalVisible.value = true;
   
@@ -203,7 +207,7 @@ async function openModal(record?: Customer) {
 
 确保在创建和更新客户时包含customer_type字段：
 
-```typescript
+```
 // 创建客户
 export function createCustomer(data: Partial<Customer>) {
   return requestClient.post('/v1/customers/all/', data);
@@ -217,12 +221,13 @@ export function updateCustomer(id: string, data: Partial<Customer>) {
 
 ## ⚠️ 注意事项
 
-1. **默认值处理**: 新增客户时，customer_type默认为'normal'（普通客户）
-2. **编辑回填**: 编辑时必须从后端获取的customer_type值正确回填到表单
-3. **必填验证**: 建议将customer_type设为必填字段
-4. **类型安全**: 使用TypeScript枚举或联合类型确保类型安全
-5. **Vben规范**: 遵循Vben Admin的代码规范和组件使用规范
-6. **rowKey配置**: 确保表格配置中正确设置了rowKey为'id'
+1. **前端同步更新**：后端已添加新的客户类型选项（'closed', 'slow_pay', 'blacklist'），前端必须同步更新CUSTOMER_TYPE_OPTIONS常量和Customer接口定义，否则新选项不会在界面上显示。
+2. **默认值处理**: 新增客户时，customer_type默认为'normal'（普通客户）
+3. **编辑回填**: 编辑时必须从后端获取的customer_type值正确回填到表单
+4. **必填验证**: 建议将customer_type设为必填字段
+5. **类型安全**: 使用TypeScript枚举或联合类型确保类型安全
+6. **Vben规范**: 遵循Vben Admin的代码规范和组件使用规范
+7. **rowKey配置**: 确保表格配置中正确设置了rowKey为'id'
 
 ## 🧪 测试检查清单
 
@@ -237,7 +242,7 @@ export function updateCustomer(id: string, data: Partial<Customer>) {
 
 ### 完整的表单Schema示例
 
-```typescript
+```
 const formSchema: FormSchema[] = [
   {
     field: 'id',

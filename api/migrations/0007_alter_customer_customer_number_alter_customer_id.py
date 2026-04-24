@@ -11,10 +11,9 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AlterField(
+        migrations.RemoveField(
             model_name='customer',
             name='customer_number',
-            field=models.CharField(default=api.models.generate_customer_number, max_length=20, unique=True, verbose_name='客户号码'),
         ),
         migrations.AlterField(
             model_name='customer',

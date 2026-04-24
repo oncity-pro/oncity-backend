@@ -23,25 +23,25 @@ class WaterBrandSerializer(serializers.ModelSerializer):
 
 
 class CustomerSerializer(serializers.ModelSerializer):
-    """
-    客户序列化器
-    """
-    brand_name = serializers.CharField(source='brand.name', read_only=True)
-    customer_type_display = serializers.SerializerMethodField(read_only=True)
-    
+    customer_type_display = serializers.CharField(source='customer_type', read_only=True)
+    brand_name = serializers.SerializerMethodField(read_only=True)
+
     class Meta:
         model = Customer
-        fields = [
-            'id', 'customer_number', 'name', 'customer_type', 'customer_type_display', 'brand', 'brand_name', 'open_date', 
-            'last_delivery_date', 'phone', 'address', 'remark',
-            'is_active', 'created_at', 'updated_at'
-        ]
-        read_only_fields = ['id', 'customer_number', 'created_at', 'updated_at']
-    
-    def get_customer_type_display(self, obj):
-        """获取客户类型显示名称"""
-        return obj.get_customer_type_display()
-    
+        fields = ['id', 'name', 'customer_type', 'customer_type_display', 'brand', 'brand_name', 'open_date', 
+                  'last_delivery_date', 'phone', 'address', 'remark', 'is_active', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'created_at', 'updated_at']
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        # 确保 customer_type 显示为中文描述
+        data['customer_type_display'] = instance.customer_type_display
+        return data
+
+    def get_brand_name(self, obj):
+        """获取品牌名称"""
+        return obj.brand.name if obj.brand else None
+
     def validate_name(self, value):
         """验证姓名地址不为空"""
         if not value or value.strip() == '':

@@ -16,11 +16,14 @@
 - `vip`: VIP客户
 - `normal`: 普通客户（默认值）
 - `pickup`: 自提客户
+- `closed`: 已注销
+- `slow_pay`: 收款慢
+- `blacklist`: 黑名单
 
 ### API返回示例
-```json
+```
 {
-  "id": "0001",
+  "id": "1003",
   "name": "张三",
   "customer_type": "vip",
   "customer_type_display": "VIP客户",
@@ -38,6 +41,7 @@
 ```
 
 **字段说明：**
+- `id`: 客户编号（4位数字格式，如0001、1003等）
 - `customer_type`: 客户类型代码，用于提交和存储
 - `customer_type_display`: 客户类型的中文显示名称，由后端自动生成，只读
 
