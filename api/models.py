@@ -105,17 +105,17 @@ class Customer(models.Model):
         related_name='customers',
         verbose_name='水品牌'
     )
-    open_date = models.DateField(verbose_name='开户日期')
-    last_delivery_date = models.DateField(blank=True, null=True, verbose_name='最后送水日期')
+    open_date = models.DateField(verbose_name='开户日期', default=timezone.now)  # 设置默认值为当前日期
+    last_delivery_date = models.DateField(verbose_name='最后送水日期', null=True, blank=True)  # 允许为空，便于过渡
     phone = models.CharField(max_length=20, verbose_name='联系电话', blank=True, null=True)  # 设为可选
     remark = models.TextField(blank=True, verbose_name='备注')
     is_active = models.BooleanField(default=True, verbose_name='是否活跃')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='更新时间')
     # 新增字段：存水量
-    storage_amount = models.IntegerField(default=0, verbose_name='存水量')
+    storage_amount = models.IntegerField(default=0, verbose_name='存水量')  # 默认值为0
     # 新增字段：欠空桶
-    owed_empty_bucket = models.IntegerField(default=0, verbose_name='欠空桶')
+    owed_empty_bucket = models.IntegerField(default=0, verbose_name='欠空桶')  # 设置默认值为0
 
     class Meta:
         db_table = 'api_customer'  # 确保使用正确的表名
