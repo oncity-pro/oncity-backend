@@ -107,8 +107,7 @@ class Customer(models.Model):
     )
     open_date = models.DateField(verbose_name='开户日期')
     last_delivery_date = models.DateField(blank=True, null=True, verbose_name='最后送水日期')
-    phone = models.CharField(max_length=20, verbose_name='联系电话')
-    address = models.TextField(verbose_name='详细地址')
+    phone = models.CharField(max_length=20, verbose_name='联系电话', blank=True, null=True)  # 设为可选
     remark = models.TextField(blank=True, verbose_name='备注')
     is_active = models.BooleanField(default=True, verbose_name='是否活跃')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')

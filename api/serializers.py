@@ -31,7 +31,7 @@ class CustomerSerializer(serializers.ModelSerializer):
         model = Customer
         fields = ['id', 'name', 'customer_type', 'customer_type_display', 'brand', 'brand_name', 
                   'open_date', 'last_delivery_date', 
-                  'phone', 'address', 'remark', 'is_active', 'created_at', 'updated_at', 'storage_amount', 'owed_empty_bucket']
+                  'phone', 'remark', 'is_active', 'created_at', 'updated_at', 'storage_amount', 'owed_empty_bucket']
         read_only_fields = ['id', 'created_at', 'updated_at']
 
     def to_representation(self, instance):
@@ -59,18 +59,7 @@ class CustomerSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("姓名地址不能为空")
         return value.strip()
     
-    def validate_phone(self, value):
-        """验证联系电话不为空"""
-        if not value or value.strip() == '':
-            raise serializers.ValidationError("联系电话不能为空")
-        return value.strip()
-    
-    def validate_address(self, value):
-        """验证地址不为空"""
-        if not value or value.strip() == '':
-            raise serializers.ValidationError("详细地址不能为空")
-        return value.strip()
-    
+    # 删除对phone字段的验证函数，使其成为可选字段
     def validate_open_date(self, value):
         """验证开户日期"""
         from django.utils import timezone
