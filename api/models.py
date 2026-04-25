@@ -113,6 +113,10 @@ class Customer(models.Model):
     is_active = models.BooleanField(default=True, verbose_name='是否活跃')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='更新时间')
+    # 新增字段：存水量
+    storage_amount = models.IntegerField(default=0, verbose_name='存水量')
+    # 新增字段：欠空桶
+    owed_empty_bucket = models.IntegerField(default=0, verbose_name='欠空桶')
 
     class Meta:
         db_table = 'api_customer'  # 确保使用正确的表名

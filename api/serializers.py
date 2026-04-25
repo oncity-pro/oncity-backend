@@ -31,7 +31,7 @@ class CustomerSerializer(serializers.ModelSerializer):
         model = Customer
         fields = ['id', 'name', 'customer_type', 'customer_type_display', 'brand', 'brand_name', 
                   'open_date', 'last_delivery_date', 
-                  'phone', 'address', 'remark', 'is_active', 'created_at', 'updated_at']
+                  'phone', 'address', 'remark', 'is_active', 'created_at', 'updated_at', 'storage_amount', 'owed_empty_bucket']
         read_only_fields = ['id', 'created_at', 'updated_at']
 
     def to_representation(self, instance):
@@ -43,6 +43,10 @@ class CustomerSerializer(serializers.ModelSerializer):
         data['lastDeliveryDate'] = instance.last_delivery_date.isoformat() if instance.last_delivery_date else None
         # 处理 brand 字段（可能是 WaterBrand 对象或 None）
         data['brandId'] = instance.brand_id if instance.brand else None
+        # 添加驼峰命名的storage_amount字段
+        data['storageAmount'] = instance.storage_amount
+        # 添加驼峰命名的owed_empty_bucket字段
+        data['owedEmptyBucket'] = instance.owed_empty_bucket
         return data
 
     def get_brand_name(self, obj):
