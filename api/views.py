@@ -396,43 +396,6 @@ class CustomerDetailView(generics.RetrieveUpdateDestroyAPIView):
             }, status=status.HTTP_400_BAD_REQUEST)
 
 
-# ==================== Statistics Views ====================
-
-class CustomerStatsView(APIView):
-    """
-    客户统计数据视图
-    GET /api/v1/stats/customers/
-    """
-    permission_classes = []  # 允许未认证用户访问
-    
-    def get(self, request):
-        # 获取客户总数
-        total_customers = Customer.objects.count()
-        
-        # 获取活跃客户数
-        active_customers = Customer.objects.filter(is_active=True).count()
-        
-        # 获取各类型客户数量
-        from django.db.models import Count
-        customer_type_counts = Customer.objects.values('customer_type').annotate(
-            count=Count('id')
-        )
-        
-        type_counts = {}
-        for item in customer_type_counts:
-            type_counts[item['customer_type']] = item['count']
-        
-        return Response({
-            'code': 0,
-            'message': 'success',
-            'data': {
-                'totalCustomers': total_customers,
-                'activeCustomers': active_customers,
-                'customerTypeCounts': type_counts,
-            }
-        }, status=status.HTTP_200_OK)
-
-
 # ==================== Menu Views ====================
 
 class MenuView(APIView):

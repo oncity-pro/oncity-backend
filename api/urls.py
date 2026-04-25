@@ -10,7 +10,6 @@ from .views import (
     CustomerListView,
     CustomerListCreateView,
     CustomerDetailView,
-    CustomerStatsView,
     LoginView,
     LogoutView,
     RefreshTokenView,
@@ -54,9 +53,6 @@ urlpatterns = [
         path('customers', CustomerListView.as_view(), name='customer-list'),
         path('customers/all', CustomerListCreateView.as_view(), name='customer-list-create'),
         path('customers/<str:pk>', CustomerDetailView.as_view(), name='customer-detail'),
-        
-        # Statistics 路由
-        path('stats/customers', CustomerStatsView.as_view(), name='customer-stats'),
     ])),
     
     # 也可以直接使用 router（如果需要）
