@@ -25,17 +25,24 @@ class WaterBrandSerializer(serializers.ModelSerializer):
 class CustomerSerializer(serializers.ModelSerializer):
     customer_type_display = serializers.CharField(source='customer_type', read_only=True)
     brand_name = serializers.SerializerMethodField(read_only=True)
+    # 驼峰命名字段在 to_representation 中手动处理
 
     class Meta:
         model = Customer
-        fields = ['id', 'name', 'customer_type', 'customer_type_display', 'brand', 'brand_name', 'open_date', 
-                  'last_delivery_date', 'phone', 'address', 'remark', 'is_active', 'created_at', 'updated_at']
+        fields = ['id', 'name', 'customer_type', 'customer_type_display', 'brand', 'brand_name', 
+                  'open_date', 'last_delivery_date', 
+                  'phone', 'address', 'remark', 'is_active', 'created_at', 'updated_at']
         read_only_fields = ['id', 'created_at', 'updated_at']
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
         # 确保 customer_type 显示为中文描述
         data['customer_type_display'] = instance.customer_type_display
+        # 同时保留驼峰命名字段
+        data['openDate'] = instance.open_date.isoformat() if instance.open_date else None
+        data['lastDeliveryDate'] = instance.last_delivery_date.isoformat() if instance.last_delivery_date else None
+        # 处理 brand 字段（可能是 WaterBrand 对象或 None）
+        data['brandId'] = instance.brand_id if instance.brand else None
         return data
 
     def get_brand_name(self, obj):
