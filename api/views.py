@@ -318,16 +318,7 @@ class CustomerListCreateView(generics.ListCreateAPIView):
         serializer = self.get_serializer(data=request.data)
         if not serializer.is_valid():
             print(f"数据验证失败: {serializer.errors}")
-            # 尝试获取更具体的错误信息
-            error_details = {}
-            for field, errors in serializer.errors.items():
-                error_details[field] = [str(error) for error in errors]
-                
-            return Response({
-                'code': 1,
-                'message': '数据验证失败',
-                'errors': error_details
-            }, status=status.HTTP_400_BAD_REQUEST)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             
         self.perform_create(serializer)
         print(f"客户创建成功: {serializer.data}")
@@ -355,15 +346,7 @@ class CustomerDetailView(generics.RetrieveUpdateDestroyAPIView):
         
         if not serializer.is_valid():
             print(f"数据验证失败: {serializer.errors}")
-            error_details = {}
-            for field, errors in serializer.errors.items():
-                error_details[field] = [str(error) for error in errors]
-                
-            return Response({
-                'code': 1,
-                'message': '数据验证失败',
-                'errors': error_details
-            }, status=status.HTTP_400_BAD_REQUEST)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
         self.perform_update(serializer)
         print(f"客户更新成功: {serializer.data}")

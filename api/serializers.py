@@ -32,7 +32,18 @@ class CustomerSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'customer_type', 'customer_type_display', 'brand', 'brand_name', 
                   'open_date', 'last_delivery_date', 
                   'phone', 'remark', 'is_active', 'created_at', 'updated_at', 'storage_amount', 'owed_empty_bucket']
-        read_only_fields = ['id', 'created_at', 'updated_at']
+        read_only_fields = ['created_at', 'updated_at']
+
+    def validate_id(self, value):
+        """验证客户编号唯一性"""
+        if not value:
+            return value
+        if self.instance is not None and value == self.instance.id:
+            # 更新模式且编号未变，无需校验
+            return value
+        if Customer.objects.filter(id=value).exists():
+            raise serializers.ValidationError("客户编号已存在，请重新输入")
+        return value
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
