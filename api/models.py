@@ -116,6 +116,8 @@ class Customer(models.Model):
     storage_amount = models.IntegerField(default=0, verbose_name='存水量')  # 默认值为0
     # 新增字段：欠空桶
     owed_empty_bucket = models.IntegerField(default=0, verbose_name='欠空桶')  # 设置默认值为0
+    # 新增字段：总用水量
+    total_water_usage = models.IntegerField(default=0, verbose_name='总用水量')  # 设置默认值为0
 
     class Meta:
         db_table = 'api_customer'  # 确保使用正确的表名

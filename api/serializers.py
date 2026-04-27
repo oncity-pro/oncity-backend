@@ -29,9 +29,9 @@ class CustomerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Customer
-        fields = ['id', 'name', 'customer_type', 'customer_type_display', 'brand', 'brand_name', 
-                  'open_date', 'last_delivery_date', 
-                  'phone', 'remark', 'is_active', 'created_at', 'updated_at', 'storage_amount', 'owed_empty_bucket']
+        fields = ['id', 'name', 'customer_type', 'customer_type_display', 'brand', 'brand_name',
+                  'open_date', 'last_delivery_date',
+                  'phone', 'remark', 'is_active', 'created_at', 'updated_at', 'storage_amount', 'owed_empty_bucket', 'total_water_usage']
         read_only_fields = ['created_at', 'updated_at']
 
     def validate_id(self, value):
@@ -58,6 +58,8 @@ class CustomerSerializer(serializers.ModelSerializer):
         data['storageAmount'] = instance.storage_amount
         # 添加驼峰命名的owed_empty_bucket字段
         data['owedEmptyBucket'] = instance.owed_empty_bucket
+        # 添加驼峰命名的total_water_usage字段
+        data['totalWaterUsage'] = instance.total_water_usage
         return data
 
     def get_brand_name(self, obj):
