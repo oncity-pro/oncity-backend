@@ -1,0 +1,66 @@
+# ======================
+# 通用项目忽略规则
+# ======================
+
+# 依赖包目录（前端、后端都适用）
+node_modules/
+.pnp/
+.pnp.js
+
+# 构建/打包产物
+dist/
+build/
+output/
+out/
+
+# 日志文件
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# 环境配置文件（包含敏感信息）
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# 编辑器和IDE配置文件
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+*.sublime-project
+*.sublime-workspace
+
+# 操作系统生成的文件
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# 测试/覆盖率相关
+coverage/
+*.lcov
+.nyc_output/
+
+# 临时文件
+*.tmp
+*.temp
+*.bak
+*.backup
+*.orig
+
+# 数据库文件（如果项目里有）
+*.db
+*.sqlite
+*.sqlite3
+
+# ======================
+# 注意：这里没有写 server/ 和 web/
+# 所以这两个文件夹里的内容都会被正常提交到 GitHub
+# ======================

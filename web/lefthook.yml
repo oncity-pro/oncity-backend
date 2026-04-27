@@ -1,0 +1,76 @@
+# EXAMPLE USAGE:
+#
+#   Refer for explanation to following link:
+#   https://lefthook.dev/configuration/
+#
+# pre-push:
+#   jobs:
+#     - name: packages audit
+#       tags:
+#         - frontend
+#         - security
+#       run: yarn audit
+#
+#     - name: gems audit
+#       tags:
+#         - backend
+#         - security
+#       run: bundle audit
+#
+# pre-commit:
+#   parallel: true
+#   jobs:
+#     - run: yarn eslint {staged_files}
+#       glob: "*.{js,ts,jsx,tsx}"
+#
+#     - name: rubocop
+#       glob: "*.rb"
+#       exclude:
+#         - config/application.rb
+#         - config/routes.rb
+#       run: bundle exec rubocop --force-exclusion {all_files}
+#
+#     - name: govet
+#       files: git ls-files -m
+#       glob: "*.go"
+#       run: go vet {files}
+#
+#     - script: "hello.js"
+#       runner: node
+#
+#     - script: "hello.go"
+#       runner: go run
+
+pre-commit:
+  parallel: true
+  commands:
+    code-workspace:
+      run: echo "跳过校验，正常提交"
+    lint-md:
+      run: echo "跳过"
+      glob: '*.md'
+    lint-vue:
+      run: echo "跳过"
+      glob: '*.vue'
+    lint-js:
+      run: echo "跳过"
+      glob: '*.{js,jsx,ts,tsx}'
+    lint-style:
+      run: echo "跳过"
+      glob: '*.{scss,less,styl,html,vue,css}'
+    lint-package:
+      run: echo "跳过"
+      glob: 'package.json'
+    lint-json:
+      run: echo "跳过"
+      glob: '{!(package)*.json,*.code-snippets,.!(browserslist)*rc}'
+
+post-merge:
+  commands:
+    install:
+      run: echo "跳过"
+
+commit-msg:
+  commands:
+    commitlint:
+      run: echo "跳过提交信息校验"

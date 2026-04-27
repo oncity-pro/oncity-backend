@@ -1,0 +1,18 @@
+# Django & MySQL Dependencies
+django==6.0.4
+djangorestframework==3.17.1
+django-cors-headers==4.9.0
+mysqlclient==2.2.8
+python-dotenv==1.2.2
+python-decouple==3.8
+
+# Development Tools
+django-extensions==3.2.3
+ipython==8.31.0
+
+# Testing & HTTP Client
+requests==2.31.0
+
+# Production (Optional)
+gunicorn==21.2.0
+whitenoise==6.6.0

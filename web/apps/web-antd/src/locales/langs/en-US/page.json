@@ -1,0 +1,23 @@
+{
+  "auth": {
+    "login": "Login",
+    "register": "Register",
+    "codeLogin": "Code Login",
+    "qrcodeLogin": "Qr Code Login",
+    "forgetPassword": "Forget Password",
+    "profile": "Profile"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "analytics": "Analytics",
+    "workspace": "Workspace"
+  },
+  "inventory": {
+    "title": "Inventory Management",
+    "warehouseOverview": "Warehouse Overview",
+    "description": "This is the overview page of the inventory management system, where you can view and manage your inventory information.",
+    "addNewItem": "Add New Item",
+    "importData": "Import Data",
+    "exportData": "Export Data"
+  }
+}
