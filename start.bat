@@ -1,55 +1,19 @@
 @echo off
-REM ONCITY-Django Backend Startup Script for Windows
+REM ONCITY-Django Backend One-Click Starter for Windows
+REM 自动处理: venv、依赖、.env、logs、MySQL检测、迁移、启动
 
 echo ========================================
-echo   ONCITY-Django Backend Setup
+echo   ONCITY 后端一键启动
 echo ========================================
 echo.
 
-REM Check if virtual environment exists
-if not exist "venv\Scripts\activate.bat" (
-    echo Creating virtual environment...
-    python -m venv venv
-    echo.
-)
-
-REM Activate virtual environment
-echo Activating virtual environment...
-call venv\Scripts\activate.bat
-echo.
-
-REM Install dependencies
-echo Installing dependencies...
-pip install -r requirements.txt
-echo.
-
-REM Check if .env file exists
-if not exist ".env" (
-    echo WARNING: .env file not found!
-    echo Please copy .env.example to .env and configure it.
-    echo.
-    echo Creating .env from .env.example...
-    copy .env.example .env
-    echo.
-    echo IMPORTANT: Edit .env file with your MySQL credentials before continuing!
+REM 检查 Python 是否安装
+python --version >nul 2>&1
+if errorlevel 1 (
+    echo 错误: 未找到 Python，请先安装 Python 3.13+
     pause
+    exit /b 1
 )
 
-REM Run migrations
-echo Running database migrations...
-python manage.py makemigrations
-python manage.py migrate
-echo.
-
-REM Start development server
-echo ========================================
-echo   Starting Django Development Server
-echo   URL: http://127.0.0.1:8000
-echo   Admin: http://127.0.0.1:8000/admin/
-echo   API: http://127.0.0.1:8000/api/health/
-echo ========================================
-echo.
-echo Press Ctrl+C to stop the server
-echo.
-
-python manage.py runserver
+REM 运行一键启动脚本
+python start_backend.py

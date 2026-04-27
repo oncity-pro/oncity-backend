@@ -1,55 +1,17 @@
 #!/bin/bash
-# ONCITY-Django Backend Startup Script for Linux/Mac
+# ONCITY-Django Backend One-Click Starter for Linux/Mac
+# 自动处理: venv、依赖、.env、logs、MySQL检测、迁移、启动
 
 echo "========================================"
-echo "  ONCITY-Django Backend Setup"
+echo "  ONCITY 后端一键启动"
 echo "========================================"
 echo ""
 
-# Check if virtual environment exists
-if [ ! -d "venv" ]; then
-    echo "Creating virtual environment..."
-    python3 -m venv venv
-    echo ""
+# 检查 Python 是否安装
+if ! command -v python3 &> /dev/null; then
+    echo "错误: 未找到 python3，请先安装 Python 3.13+"
+    exit 1
 fi
 
-# Activate virtual environment
-echo "Activating virtual environment..."
-source venv/bin/activate
-echo ""
-
-# Install dependencies
-echo "Installing dependencies..."
-pip install -r requirements.txt
-echo ""
-
-# Check if .env file exists
-if [ ! -f ".env" ]; then
-    echo "WARNING: .env file not found!"
-    echo "Please copy .env.example to .env and configure it."
-    echo ""
-    echo "Creating .env from .env.example..."
-    cp .env.example .env
-    echo ""
-    echo "IMPORTANT: Edit .env file with your MySQL credentials before continuing!"
-    read -p "Press enter to continue after editing .env..."
-fi
-
-# Run migrations
-echo "Running database migrations..."
-python manage.py makemigrations
-python manage.py migrate
-echo ""
-
-# Start development server
-echo "========================================"
-echo "  Starting Django Development Server"
-echo "  URL: http://127.0.0.1:8000"
-echo "  Admin: http://127.0.0.1:8000/admin/"
-echo "  API: http://127.0.0.1:8000/api/health/"
-echo "========================================"
-echo ""
-echo "Press Ctrl+C to stop the server"
-echo ""
-
-python manage.py runserver
+# 运行一键启动脚本
+python3 start_backend.py
