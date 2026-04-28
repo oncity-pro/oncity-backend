@@ -19,6 +19,7 @@ import {
   CUSTOMER_TYPE_OPTIONS, 
   updateCustomerApi,
 } from '#/api/customer';
+import { getBucketDepositConfigApi } from '#/api/settings';
 import { 
   getWaterBrandListApi, 
 } from '#/api/water-brand';
@@ -29,6 +30,9 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{ success: [] }>();
+
+// 每桶押金金额（从全局配置获取）
+const depositPerBucket = ref<number>(30);
 
 // 品牌列表 - 现在由ApiSelect组件内部处理
 // const brandOptions = ref<Array<{ label: string; value: number }>>([]);
@@ -97,10 +101,26 @@ const [Form, formApi] = useVbenForm({
       componentProps: {
         placeholder: '请输入欠空桶数',
         min: 0,
+        onChange: (value: number | null) => {
+          const owed = value || 0;
+          formApi.setValues({
+            empty_bucket_deposit: Number((owed * depositPerBucket.value).toFixed(2)),
+          });
+        },
       },
       fieldName: 'owed_empty_bucket',
       label: '欠空桶',
       rules: 'required',  // 设置为必填
+    },
+    {
+      component: 'InputNumber',
+      componentProps: {
+        disabled: true,
+        placeholder: '自动计算',
+        addonAfter: '元',
+      },
+      fieldName: 'empty_bucket_deposit',
+      label: '空桶押金',
     },
     {
       component: 'ApiSelect',
@@ -303,11 +323,24 @@ const [Modal, modalApi] = useVbenModal({
       console.warn('onOpenChange - data 是否为空对象:', data && Object.keys(data).length === 0);
       console.warn('onOpenChange - data 所有键名:', data ? Object.keys(data) : []);
       console.warn('===========================');
+
+      // 加载空桶押金配置
+      try {
+        const config = await getBucketDepositConfigApi();
+        depositPerBucket.value = config.amount_per_bucket;
+      } catch (error) {
+        console.error('加载空桶押金配置失败:', error);
+      }
       
       if (data && Object.keys(data).length > 0) {
         // 编辑模式：填充表单数据
         console.warn('进入编辑模式，准备设置表单值');
         await formApi.setValues(data);
+        // 计算空桶押金
+        const owed = data.owed_empty_bucket || 0;
+        await formApi.setValues({
+          empty_bucket_deposit: Number((owed * depositPerBucket.value).toFixed(2)),
+        });
         modalApi.setState({ title: '编辑客户' });
       } else {
         // 新增模式：重置表单并设置默认值
@@ -318,6 +351,7 @@ const [Modal, modalApi] = useVbenModal({
         const today = new Date().toISOString().split('T')[0]; // 获取今天的日期，格式为 YYYY-MM-DD
         await formApi.setValues({ 
           open_date: today, // 设置开户日期为今天
+          empty_bucket_deposit: 0,
           
           // 设置怡宝为默认品牌
           brand: 2  // 假设怡宝的ID是2

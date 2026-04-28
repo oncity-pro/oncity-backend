@@ -1,11 +1,13 @@
 <script lang="ts" setup>
 import type { Customer } from '#/api/customer';
 
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 
 import { useVbenModal } from '@vben/common-ui';
 
 import { Descriptions, DescriptionsItem, Tag } from 'ant-design-vue';
+
+import { getBucketDepositConfigApi } from '#/api/settings';
 
 const props = defineProps<{
   customerData?: Customer | null;
@@ -13,11 +15,23 @@ const props = defineProps<{
 }>();
 
 const customer = computed(() => props.customerData);
+const depositPerBucket = ref<number>(30);
+
+const emptyBucketDeposit = computed(() => {
+  const owed = customer.value?.owed_empty_bucket ?? 0;
+  return Number((owed * depositPerBucket.value).toFixed(2));
+});
 
 const [Modal, modalApi] = useVbenModal({
-  onOpenChange(isOpen: boolean) {
+  async onOpenChange(isOpen: boolean) {
     if (isOpen) {
       modalApi.setState({ title: '客户详情' });
+      try {
+        const config = await getBucketDepositConfigApi();
+        depositPerBucket.value = config.amount_per_bucket;
+      } catch (error) {
+        console.error('加载空桶押金配置失败:', error);
+      }
     }
   },
 });
@@ -97,6 +111,9 @@ function getCustomerTypeLabel(type?: string) {
       </DescriptionsItem>
       <DescriptionsItem label="欠空桶">
         {{ customer.owed_empty_bucket ?? '-' }}
+      </DescriptionsItem>
+      <DescriptionsItem label="空桶押金">
+        {{ emptyBucketDeposit }} 元
       </DescriptionsItem>
       <DescriptionsItem label="总用水量">
         {{ customer.total_water_usage ?? customer.totalWaterUsage ?? '-' }}
