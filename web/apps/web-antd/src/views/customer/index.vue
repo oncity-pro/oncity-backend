@@ -8,7 +8,7 @@ import { onMounted, ref, nextTick } from 'vue';
 
 import { Page, useVbenModal } from '@vben/common-ui';
 import { Plus } from '@vben/icons';
-import { MoreHorizontal, Pencil, Trash2 } from 'lucide-vue-next';
+import { Eye, MoreHorizontal, Pencil, Trash2 } from 'lucide-vue-next';
 
 import { Button, Dropdown, Menu, message, Modal } from 'ant-design-vue';
 
@@ -21,6 +21,7 @@ import {
   getWaterBrandListApi
 } from '#/api/water-brand';
 
+import Detail from './modules/detail.vue';
 import Form from './modules/form.vue';
 
 // 品牌列表（用于显示品牌名称）
@@ -50,13 +51,30 @@ const [FormModal, formModalApi] = useVbenModal({
   destroyOnClose: true,
 });
 
+// 详情弹窗
+const [DetailModal, detailModalApi] = useVbenModal({
+  connectedComponent: Detail,
+  destroyOnClose: true,
+});
+
 // 当前编辑的客户数据（用于替代 modalApi.setData/getData）
 const currentCustomer = ref<Customer | null>(null);
+
+// 当前查看详情的客户数据
+const currentDetailCustomer = ref<Customer | null>(null);
+const detailBrandName = ref<string>('');
 
 // 新增客户
 function onCreate() {
   currentCustomer.value = null;
   formModalApi.open();
+}
+
+// 查看详情
+function onViewDetail(row: Customer) {
+  currentDetailCustomer.value = { ...row };
+  detailBrandName.value = row.brand ? (brandMap.value.get(row.brand) ?? '') : '';
+  detailModalApi.open();
 }
 
 // 编辑客户
@@ -264,6 +282,7 @@ onMounted(() => {
 <template>
   <Page auto-content-height title="客户管理">
     <FormModal :customer-data="currentCustomer" @success="refreshGrid" />
+    <DetailModal :customer-data="currentDetailCustomer" :brand-name="detailBrandName" />
     <Grid table-title="客户列表" :loading="loading">
       <template #toolbar-tools>
         <Button type="primary" @click="onCreate">
@@ -285,6 +304,12 @@ onMounted(() => {
           </Button>
           <template #overlay>
             <Menu>
+              <Menu.Item @click="onViewDetail(row)">
+                <span class="flex items-center gap-1">
+                  <Eye class="size-3.5" />
+                  详情
+                </span>
+              </Menu.Item>
               <Menu.Item @click="onEdit(row)">
                 <span class="flex items-center gap-1">
                   <Pencil class="size-3.5" />
