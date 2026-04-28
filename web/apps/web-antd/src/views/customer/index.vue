@@ -8,9 +8,9 @@ import { onMounted, ref, nextTick } from 'vue';
 
 import { Page, useVbenModal } from '@vben/common-ui';
 import { Plus } from '@vben/icons';
-import { Pencil, Trash2 } from 'lucide-vue-next';
+import { MoreHorizontal, Pencil, Trash2 } from 'lucide-vue-next';
 
-import { Button, message, Popconfirm, Space } from 'ant-design-vue';
+import { Button, Dropdown, Menu, message, Modal } from 'ant-design-vue';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import { 
@@ -71,6 +71,18 @@ async function onEdit(row: Customer) {
   // 使用 nextTick 替代 setTimeout
   await nextTick();
   formModalApi.open();
+}
+
+// 点击删除菜单项，弹出确认对话框
+function handleDeleteClick(row: Customer) {
+  Modal.confirm({
+    title: '确定要删除这个客户吗？',
+    content: '删除后无法恢复，请谨慎操作。',
+    okText: '确定',
+    okType: 'danger',
+    cancelText: '取消',
+    onOk: () => onDelete(row),
+  });
 }
 
 // 删除客户
@@ -168,7 +180,7 @@ const gridOptions: VxeTableGridOptions<Customer> = {
     { field: 'total_water_usage', title: '总用水量', width: 100 },
     {
       title: '操作',
-      width: 150,
+      width: 80,
       fixed: 'right',
       slots: { default: 'action' },
     },
@@ -267,23 +279,27 @@ onMounted(() => {
       
       <!-- 操作列 -->
       <template #action="{ row }">
-        <Space>
-          <Button type="link" size="small" @click="onEdit(row)">
-            <Pencil class="mr-1 size-3.5" />
-            编辑
+        <Dropdown :trigger="['click']">
+          <Button type="link" size="small">
+            <MoreHorizontal class="size-4" />
           </Button>
-          <Popconfirm
-            title="确定要删除这个客户吗？"
-            ok-text="确定"
-            cancel-text="取消"
-            @confirm="onDelete(row)"
-          >
-            <Button type="link" size="small" danger>
-              <Trash2 class="mr-1 size-3.5" />
-              删除
-            </Button>
-          </Popconfirm>
-        </Space>
+          <template #overlay>
+            <Menu>
+              <Menu.Item @click="onEdit(row)">
+                <span class="flex items-center gap-1">
+                  <Pencil class="size-3.5" />
+                  编辑
+                </span>
+              </Menu.Item>
+              <Menu.Item danger @click="handleDeleteClick(row)">
+                <span class="flex items-center gap-1">
+                  <Trash2 class="size-3.5" />
+                  删除
+                </span>
+              </Menu.Item>
+            </Menu>
+          </template>
+        </Dropdown>
       </template>
     </Grid>
   </Page>
