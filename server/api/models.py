@@ -107,6 +107,7 @@ class Customer(models.Model):
     )
     open_date = models.DateField(verbose_name='开户日期', default=timezone.now)  # 设置默认值为当前日期
     last_delivery_date = models.DateField(verbose_name='最后送水日期', null=True, blank=True)  # 允许为空，便于过渡
+    close_date = models.DateField(verbose_name='注销日期', null=True, blank=True)
     phone = models.CharField(max_length=20, verbose_name='联系电话', blank=True, null=True)  # 设为可选
     remark = models.TextField(blank=True, verbose_name='备注')
     is_active = models.BooleanField(default=True, verbose_name='是否活跃')

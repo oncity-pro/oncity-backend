@@ -3,7 +3,7 @@ import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { Customer } from '#/api/customer';
 import type { WaterBrand } from '#/api/water-brand';
 
-import { onMounted, ref, watch, nextTick } from 'vue';
+import { computed, onMounted, ref, watch, nextTick } from 'vue';
 
 import { Page, useVbenModal } from '@vben/common-ui';
 import { Plus } from '@vben/icons';
@@ -31,6 +31,42 @@ const loading = ref(false);
 
 // 搜索关键词
 const searchKeyword = ref('');
+
+// 全部客户数据（用于统计）
+const allCustomers = ref<Customer[]>([]);
+
+// 统计数据
+const stats = computed(() => {
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth();
+
+  const isCurrentMonth = (dateStr?: string | null) => {
+    if (!dateStr) return false;
+    const d = new Date(dateStr);
+    return d.getFullYear() === currentYear && d.getMonth() === currentMonth;
+  };
+
+  const total = allCustomers.value.length;
+  const newThisMonth = allCustomers.value.filter((c) =>
+    isCurrentMonth(c.created_at),
+  ).length;
+  const closedThisMonth = allCustomers.value.filter((c) =>
+    isCurrentMonth(c.close_date),
+  ).length;
+
+  const vipCount = allCustomers.value.filter(
+    (c) => c.customer_type === 'vip',
+  ).length;
+  const normalCount = allCustomers.value.filter(
+    (c) => c.customer_type === 'normal',
+  ).length;
+  const pickupCount = allCustomers.value.filter(
+    (c) => c.customer_type === 'pickup',
+  ).length;
+
+  return { total, newThisMonth, closedThisMonth, vipCount, normalCount, pickupCount };
+});
 
 // 实时搜索
 watch(searchKeyword, () => {
@@ -210,6 +246,7 @@ const gridOptions: VxeTableGridOptions<Customer> = {
           }
           
           const data = await getCustomerListApi(params);
+          allCustomers.value = data;
           
           // 调试：打印第一条数据的结构
           if (data && data.length > 0) {
@@ -264,7 +301,36 @@ onMounted(() => {
   <Page auto-content-height>
     <FormModal :customer-data="currentCustomer" @success="refreshGrid" />
     <DetailModal :customer-data="currentDetailCustomer" :brand-name="detailBrandName" />
-    <Grid table-title="客户列表" :loading="loading">
+
+    <!-- 统计卡片 -->
+    <div class="mb-4 flex gap-4">
+      <div class="flex-1 rounded-lg bg-blue-50 p-4 dark:bg-blue-950/30">
+        <div class="text-sm text-gray-500 dark:text-blue-300">客户总数</div>
+        <div class="text-2xl font-bold text-blue-600 dark:text-blue-400">{{ stats.total }}</div>
+      </div>
+      <div class="flex-1 rounded-lg bg-yellow-50 p-4 dark:bg-yellow-950/30">
+        <div class="text-sm text-gray-500 dark:text-yellow-300">VIP客户</div>
+        <div class="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{{ stats.vipCount }}</div>
+      </div>
+      <div class="flex-1 rounded-lg bg-green-50 p-4 dark:bg-green-950/30">
+        <div class="text-sm text-gray-500 dark:text-green-300">普通客户</div>
+        <div class="text-2xl font-bold text-green-600 dark:text-green-400">{{ stats.normalCount }}</div>
+      </div>
+      <div class="flex-1 rounded-lg bg-cyan-50 p-4 dark:bg-cyan-950/30">
+        <div class="text-sm text-gray-500 dark:text-cyan-300">自提客户</div>
+        <div class="text-2xl font-bold text-cyan-600 dark:text-cyan-400">{{ stats.pickupCount }}</div>
+      </div>
+      <div class="flex-1 rounded-lg bg-emerald-50 p-4 dark:bg-emerald-950/30">
+        <div class="text-sm text-gray-500 dark:text-emerald-300">本月新增</div>
+        <div class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{{ stats.newThisMonth }}</div>
+      </div>
+      <div class="flex-1 rounded-lg bg-red-50 p-4 dark:bg-red-950/30">
+        <div class="text-sm text-gray-500 dark:text-red-300">本月注销</div>
+        <div class="text-2xl font-bold text-red-600 dark:text-red-400">{{ stats.closedThisMonth }}</div>
+      </div>
+    </div>
+
+    <Grid :loading="loading">
       <template #toolbar-tools>
         <Button type="primary" @click="onCreate">
           <Plus class="size-5" />

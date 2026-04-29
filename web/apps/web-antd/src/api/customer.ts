@@ -39,6 +39,8 @@ export interface Customer {
   openDate?: string; // 驼峰命名（供前端使用）
   last_delivery_date?: null | string;
   lastDeliveryDate?: string; // 驼峰命名（供前端使用）
+  close_date?: null | string;
+  closeDate?: string; // 驼峰命名（供前端使用）
   phone?: string;
   remark?: string;
   is_active?: boolean;

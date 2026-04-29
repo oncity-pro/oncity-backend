@@ -30,7 +30,7 @@ class CustomerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customer
         fields = ['id', 'name', 'customer_type', 'customer_type_display', 'brand', 'brand_name',
-                  'open_date', 'last_delivery_date',
+                  'open_date', 'last_delivery_date', 'close_date',
                   'phone', 'remark', 'is_active', 'created_at', 'updated_at', 'storage_amount', 'owed_empty_bucket', 'total_water_usage']
         read_only_fields = ['created_at', 'updated_at']
 
@@ -52,6 +52,7 @@ class CustomerSerializer(serializers.ModelSerializer):
         # 同时保留驼峰命名字段
         data['openDate'] = instance.open_date.isoformat() if instance.open_date else None
         data['lastDeliveryDate'] = instance.last_delivery_date.isoformat() if instance.last_delivery_date else None
+        data['closeDate'] = instance.close_date.isoformat() if instance.close_date else None
         # 处理 brand 字段（可能是 WaterBrand 对象或 None）
         data['brandId'] = instance.brand_id if instance.brand else None
         # 添加驼峰命名的storage_amount字段
@@ -61,6 +62,24 @@ class CustomerSerializer(serializers.ModelSerializer):
         # 添加驼峰命名的total_water_usage字段
         data['totalWaterUsage'] = instance.total_water_usage
         return data
+
+    def update(self, instance, validated_data):
+        """更新客户时，若标记为已注销则自动设置注销日期"""
+        from django.utils import timezone
+        customer_type = validated_data.get('customer_type', instance.customer_type)
+        if customer_type == 'closed' and not instance.close_date:
+            validated_data['close_date'] = timezone.now().date()
+        elif customer_type != 'closed' and instance.close_date:
+            # 若从已注销恢复为其他类型，清空注销日期
+            validated_data['close_date'] = None
+        return super().update(instance, validated_data)
+
+    def create(self, validated_data):
+        """创建客户时，若标记为已注销则自动设置注销日期"""
+        from django.utils import timezone
+        if validated_data.get('customer_type') == 'closed' and not validated_data.get('close_date'):
+            validated_data['close_date'] = timezone.now().date()
+        return super().create(validated_data)
 
     def get_brand_name(self, obj):
         """获取品牌名称"""
