@@ -4,11 +4,11 @@ import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { Customer } from '#/api/customer';
 import type { WaterBrand } from '#/api/water-brand';
 
-import { onMounted, ref, nextTick } from 'vue';
+import { defineComponent, h, onMounted, ref, nextTick } from 'vue';
 
 import { Page, useVbenModal } from '@vben/common-ui';
 import { Plus } from '@vben/icons';
-import { Eye, MoreHorizontal, Pencil, Trash2 } from 'lucide-vue-next';
+import { Eye, MoreHorizontal, Pencil, Search, Trash2 } from 'lucide-vue-next';
 
 import { Button, Dropdown, Menu, message, Modal } from 'ant-design-vue';
 
@@ -148,22 +148,33 @@ function refreshGrid() {
 const formOptions: VbenFormProps = {
   // 默认展开
   collapsed: false,
+  // inline 布局 + 靠右对齐
+  layout: 'inline',
+  wrapperClass: 'justify-end',
   schema: [
     {
       component: 'Input',
       componentProps: {
         placeholder: '输入编号或姓名地址搜索',
         allowClear: true,
+        style: { width: '240px' },
       },
       fieldName: 'keyword',
-      label: '姓名地址',
+      label: (() =>
+        h('span', { class: 'flex items-center gap-1' }, [
+          h(Search, { class: 'size-4' }),
+          '查询',
+        ])) as any,
+      // 移除字段默认边距，确保与表格左对齐
+      formItemClass: '!mb-0',
+      // label 左对齐，覆盖默认的右对齐
+      labelClass: '!text-left',
     },
   ],
   // 控制表单是否显示折叠按钮
   showCollapseButton: false,
-  submitButtonOptions: {
-    content: '查询',
-  },
+  // 隐藏默认操作按钮（实时搜索无需点击查询）
+  showDefaultActions: false,
   // 是否在字段值改变时提交表单（启用实时搜索）
   submitOnChange: true,
   // 按下回车时是否提交表单
