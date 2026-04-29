@@ -261,7 +261,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <Page auto-content-height title="客户管理">
+  <Page auto-content-height>
     <FormModal :customer-data="currentCustomer" @success="refreshGrid" />
     <DetailModal :customer-data="currentDetailCustomer" :brand-name="detailBrandName" />
     <Grid table-title="客户列表" :loading="loading">
