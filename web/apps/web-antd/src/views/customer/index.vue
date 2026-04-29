@@ -7,7 +7,7 @@ import { computed, onMounted, ref, watch, nextTick } from 'vue';
 
 import { Page, useVbenModal } from '@vben/common-ui';
 import { Plus } from '@vben/icons';
-import { Eye, MoreHorizontal, Pencil, Search, Trash2 } from 'lucide-vue-next';
+import { Crown, Eye, MoreHorizontal, Package, Pencil, Search, Trash2, User, UserPlus, Users, UserX } from 'lucide-vue-next';
 
 import { Button, Dropdown, Input, Menu, message, Modal } from 'ant-design-vue';
 
@@ -47,6 +47,15 @@ const stats = computed(() => {
     return d.getFullYear() === currentYear && d.getMonth() === currentMonth;
   };
 
+  const isLastMonth = (dateStr?: string | null) => {
+    if (!dateStr) return false;
+    const d = new Date(dateStr);
+    if (currentMonth === 0) {
+      return d.getFullYear() === currentYear - 1 && d.getMonth() === 11;
+    }
+    return d.getFullYear() === currentYear && d.getMonth() === currentMonth - 1;
+  };
+
   const total = allCustomers.value.length;
   const newThisMonth = allCustomers.value.filter((c) =>
     isCurrentMonth(c.created_at),
@@ -65,7 +74,46 @@ const stats = computed(() => {
     (c) => c.customer_type === 'pickup',
   ).length;
 
-  return { total, newThisMonth, closedThisMonth, vipCount, normalCount, pickupCount };
+  // 上月数据（用于环比）
+  const lastMonthNew = allCustomers.value.filter((c) =>
+    isLastMonth(c.created_at),
+  ).length;
+  const lastMonthClosed = allCustomers.value.filter((c) =>
+    isLastMonth(c.close_date),
+  ).length;
+
+  const lastMonthVipNew = allCustomers.value.filter(
+    (c) => isLastMonth(c.created_at) && c.customer_type === 'vip',
+  ).length;
+  const lastMonthVipClosed = allCustomers.value.filter(
+    (c) => isLastMonth(c.close_date) && c.customer_type === 'vip',
+  ).length;
+
+  const lastMonthNormalNew = allCustomers.value.filter(
+    (c) => isLastMonth(c.created_at) && c.customer_type === 'normal',
+  ).length;
+  const lastMonthNormalClosed = allCustomers.value.filter(
+    (c) => isLastMonth(c.close_date) && c.customer_type === 'normal',
+  ).length;
+
+  const lastMonthPickupNew = allCustomers.value.filter(
+    (c) => isLastMonth(c.created_at) && c.customer_type === 'pickup',
+  ).length;
+  const lastMonthPickupClosed = allCustomers.value.filter(
+    (c) => isLastMonth(c.close_date) && c.customer_type === 'pickup',
+  ).length;
+
+  const totalChange = lastMonthNew - lastMonthClosed;
+  const vipChange = lastMonthVipNew - lastMonthVipClosed;
+  const normalChange = lastMonthNormalNew - lastMonthNormalClosed;
+  const pickupChange = lastMonthPickupNew - lastMonthPickupClosed;
+  const newChange = newThisMonth - lastMonthNew;
+  const closedChange = closedThisMonth - lastMonthClosed;
+
+  return {
+    total, newThisMonth, closedThisMonth, vipCount, normalCount, pickupCount,
+    totalChange, vipChange, normalChange, pickupChange, newChange, closedChange,
+  };
 });
 
 // 实时搜索
@@ -304,29 +352,65 @@ onMounted(() => {
 
     <!-- 统计卡片 -->
     <div class="mb-4 flex gap-4">
-      <div class="flex-1 rounded-lg bg-blue-50 p-4 dark:bg-blue-950/30">
-        <div class="text-sm text-gray-500 dark:text-blue-300">客户总数</div>
-        <div class="text-2xl font-bold text-blue-600 dark:text-blue-400">{{ stats.total }}</div>
+      <div class="flex-1 rounded-lg bg-blue-50 p-4 dark:bg-blue-950/30 flex items-center justify-between">
+        <div>
+          <div class="text-sm text-gray-500 dark:text-blue-300">客户总数</div>
+          <div class="text-2xl font-bold text-blue-600 dark:text-blue-400">{{ stats.total }}</div>
+          <div class="text-xs mt-1" :class="stats.totalChange >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'">
+            {{ stats.totalChange >= 0 ? '↑' : '↓' }} 较上月 {{ Math.abs(stats.totalChange) }}
+          </div>
+        </div>
+        <Users class="size-10 text-blue-400/30 dark:text-blue-400/20" />
       </div>
-      <div class="flex-1 rounded-lg bg-yellow-50 p-4 dark:bg-yellow-950/30">
-        <div class="text-sm text-gray-500 dark:text-yellow-300">VIP客户</div>
-        <div class="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{{ stats.vipCount }}</div>
+      <div class="flex-1 rounded-lg bg-yellow-50 p-4 dark:bg-yellow-950/30 flex items-center justify-between">
+        <div>
+          <div class="text-sm text-gray-500 dark:text-yellow-300">VIP客户</div>
+          <div class="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{{ stats.vipCount }}</div>
+          <div class="text-xs mt-1" :class="stats.vipChange >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'">
+            {{ stats.vipChange >= 0 ? '↑' : '↓' }} 较上月 {{ Math.abs(stats.vipChange) }}
+          </div>
+        </div>
+        <Crown class="size-10 text-yellow-400/30 dark:text-yellow-400/20" />
       </div>
-      <div class="flex-1 rounded-lg bg-green-50 p-4 dark:bg-green-950/30">
-        <div class="text-sm text-gray-500 dark:text-green-300">普通客户</div>
-        <div class="text-2xl font-bold text-green-600 dark:text-green-400">{{ stats.normalCount }}</div>
+      <div class="flex-1 rounded-lg bg-green-50 p-4 dark:bg-green-950/30 flex items-center justify-between">
+        <div>
+          <div class="text-sm text-gray-500 dark:text-green-300">普通客户</div>
+          <div class="text-2xl font-bold text-green-600 dark:text-green-400">{{ stats.normalCount }}</div>
+          <div class="text-xs mt-1" :class="stats.normalChange >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'">
+            {{ stats.normalChange >= 0 ? '↑' : '↓' }} 较上月 {{ Math.abs(stats.normalChange) }}
+          </div>
+        </div>
+        <User class="size-10 text-green-400/30 dark:text-green-400/20" />
       </div>
-      <div class="flex-1 rounded-lg bg-cyan-50 p-4 dark:bg-cyan-950/30">
-        <div class="text-sm text-gray-500 dark:text-cyan-300">自提客户</div>
-        <div class="text-2xl font-bold text-cyan-600 dark:text-cyan-400">{{ stats.pickupCount }}</div>
+      <div class="flex-1 rounded-lg bg-cyan-50 p-4 dark:bg-cyan-950/30 flex items-center justify-between">
+        <div>
+          <div class="text-sm text-gray-500 dark:text-cyan-300">自提客户</div>
+          <div class="text-2xl font-bold text-cyan-600 dark:text-cyan-400">{{ stats.pickupCount }}</div>
+          <div class="text-xs mt-1" :class="stats.pickupChange >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'">
+            {{ stats.pickupChange >= 0 ? '↑' : '↓' }} 较上月 {{ Math.abs(stats.pickupChange) }}
+          </div>
+        </div>
+        <Package class="size-10 text-cyan-400/30 dark:text-cyan-400/20" />
       </div>
-      <div class="flex-1 rounded-lg bg-emerald-50 p-4 dark:bg-emerald-950/30">
-        <div class="text-sm text-gray-500 dark:text-emerald-300">本月新增</div>
-        <div class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{{ stats.newThisMonth }}</div>
+      <div class="flex-1 rounded-lg bg-emerald-50 p-4 dark:bg-emerald-950/30 flex items-center justify-between">
+        <div>
+          <div class="text-sm text-gray-500 dark:text-emerald-300">本月新增</div>
+          <div class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{{ stats.newThisMonth }}</div>
+          <div class="text-xs mt-1" :class="stats.newChange >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'">
+            {{ stats.newChange >= 0 ? '↑' : '↓' }} 较上月 {{ Math.abs(stats.newChange) }}
+          </div>
+        </div>
+        <UserPlus class="size-10 text-emerald-400/30 dark:text-emerald-400/20" />
       </div>
-      <div class="flex-1 rounded-lg bg-red-50 p-4 dark:bg-red-950/30">
-        <div class="text-sm text-gray-500 dark:text-red-300">本月注销</div>
-        <div class="text-2xl font-bold text-red-600 dark:text-red-400">{{ stats.closedThisMonth }}</div>
+      <div class="flex-1 rounded-lg bg-red-50 p-4 dark:bg-red-950/30 flex items-center justify-between">
+        <div>
+          <div class="text-sm text-gray-500 dark:text-red-300">本月注销</div>
+          <div class="text-2xl font-bold text-red-600 dark:text-red-400">{{ stats.closedThisMonth }}</div>
+          <div class="text-xs mt-1" :class="stats.closedChange >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'">
+            {{ stats.closedChange >= 0 ? '↑' : '↓' }} 较上月 {{ Math.abs(stats.closedChange) }}
+          </div>
+        </div>
+        <UserX class="size-10 text-red-400/30 dark:text-red-400/20" />
       </div>
     </div>
 
